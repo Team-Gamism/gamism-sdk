@@ -15,6 +15,10 @@ jobs:
     permissions:
       contents: write
 
+    outputs:
+      version: ${{ steps.bump.outputs.version }}
+      is_new: ${{ steps.bump.outputs.is_new }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,11 +32,21 @@ jobs:
           TAG=$(git tag -l 'v*.*.*' --sort=-v:refname | head -n 1)
 
           if [ -z "$TAG" ]; then
-            echo "version=0.1.0" >> $GITHUB_OUTPUT
+            VERSION="0.1.0"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "is_new=true" >> $GITHUB_OUTPUT
+            echo "First version: $VERSION"
             exit 0
           fi
 
           COMMITS=$(git log "$TAG"..HEAD --pretty=format:"%s")
+
+          if [ -z "$COMMITS" ]; then
+            echo "No new commits since last tag"
+            echo "version=${TAG#v}" >> $GITHUB_OUTPUT
+            echo "is_new=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
 
           IFS='.' read -r MAJOR MINOR PATCH <<< "${TAG#v}"
 
@@ -44,13 +58,35 @@ jobs:
             PATCH=$((PATCH + 1))
           fi
 
-          echo "version=$MAJOR.$MINOR.$PATCH" >> $GITHUB_OUTPUT
-          echo "New version: $MAJOR.$MINOR.$PATCH"
+          VERSION="$MAJOR.$MINOR.$PATCH"
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "is_new=true" >> $GITHUB_OUTPUT
+          echo "New version: $VERSION"
 
       - name: Create tag
+        if: steps.bump.outputs.is_new == 'true'
         run: |
+          VERSION=${{ steps.bump.outputs.version }}
+
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "Tag already exists. Skipping."
+            exit 0
+          fi
+
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          git tag v${{ steps.bump.outputs.version }}
-          git push origin v${{ steps.bump.outputs.version }}
+          git tag v$VERSION
+          git push origin v$VERSION
+
+  release:
+    needs: versioning
+    if: needs.versioning.outputs.is_new == 'true'
+    uses: ./.github/workflows/nuget-release.yml
+    with:
+      version: ${{ needs.versioning.outputs.version }}
+    permissions:
+      contents: write
+      packages: write
+    secrets: inherit
