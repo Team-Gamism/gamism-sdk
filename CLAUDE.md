@@ -83,7 +83,6 @@ app.UseGamismSdk();
 | `CommonApiResponse<T>` | Shared response format `{status, code, message, data}` |
 | `ICommonApiResponse` | Marker interface used by `ApiResponseWrapperFilter` and Swagger filter |
 | `SdkException` | Base exception carrying `HttpStatusCode` |
-| `Result<T>` / `Result` | Success/failure type without exceptions for service layer logic |
 | `IJsonSerializer` | JSON serialization abstraction (Unity: `NewtonsoftJsonSerializer`) |
 | `SingletonBase<T>` | Thread-safe singleton for pure C# environments |
 
