@@ -1,7 +1,7 @@
 using System.Diagnostics;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Gamism.SDK.Extensions.AspNetCore.Options;
+using Gamism.SDK.Extensions.AspNetCore.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -41,21 +41,6 @@ namespace Gamism.SDK.Extensions.AspNetCore.Logging
         }
 
         private bool IsExcluded(string path)
-        {
-            if (string.IsNullOrEmpty(path) || _options.NotLoggingUrls.Length == 0)
-                return false;
-
-            foreach (var pattern in _options.NotLoggingUrls)
-            {
-                var regex = "^" + Regex.Escape(pattern)
-                    .Replace("\\*\\*", ".*")
-                    .Replace("\\*", "[^/]*") + "$";
-
-                if (Regex.IsMatch(path, regex, RegexOptions.IgnoreCase))
-                    return true;
-            }
-
-            return false;
-        }
+            => UrlPatternMatcher.IsMatch(path, _options.NotLoggingUrls);
     }
 }

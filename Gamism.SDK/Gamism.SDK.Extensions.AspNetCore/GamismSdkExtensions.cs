@@ -1,9 +1,9 @@
 using System;
-using System.Text.RegularExpressions;
 using Gamism.SDK.Extensions.AspNetCore.Exceptions;
 using Gamism.SDK.Extensions.AspNetCore.Logging;
 using Gamism.SDK.Extensions.AspNetCore.Response;
 using Gamism.SDK.Extensions.AspNetCore.Swagger;
+using Gamism.SDK.Extensions.AspNetCore.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,19 +51,7 @@ namespace Gamism.SDK.Extensions.AspNetCore
                     c.OperationFilter<CommonApiResponseOperationFilter>();
 
                     c.DocInclusionPredicate((_, apiDesc) =>
-                    {
-                        var path = "/" + apiDesc.RelativePath;
-                        foreach (var pattern in options.Swagger.PathsToMatch)
-                        {
-                            var regex = "^" + Regex.Escape(pattern)
-                                .Replace("\\*\\*", ".*")
-                                .Replace("\\*", "[^/]*") + "$";
-
-                            if (Regex.IsMatch(path, regex, RegexOptions.IgnoreCase))
-                                return true;
-                        }
-                        return false;
-                    });
+                        UrlPatternMatcher.IsMatch("/" + apiDesc.RelativePath, options.Swagger.PathsToMatch));
                 });
             }
 

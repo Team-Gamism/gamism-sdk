@@ -1,6 +1,6 @@
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Gamism.SDK.Core.Network;
+using Gamism.SDK.Extensions.AspNetCore.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -45,21 +45,6 @@ namespace Gamism.SDK.Extensions.AspNetCore.Response
         }
 
         private bool IsExcluded(string path)
-        {
-            if (string.IsNullOrEmpty(path) || _options.NotWrappingUrls.Length == 0)
-                return false;
-
-            foreach (var pattern in _options.NotWrappingUrls)
-            {
-                var regex = "^" + Regex.Escape(pattern)
-                    .Replace("\\*\\*", ".*")
-                    .Replace("\\*", "[^/]*") + "$";
-
-                if (Regex.IsMatch(path, regex, RegexOptions.IgnoreCase))
-                    return true;
-            }
-
-            return false;
-        }
+            => UrlPatternMatcher.IsMatch(path, _options.NotWrappingUrls);
     }
 }
