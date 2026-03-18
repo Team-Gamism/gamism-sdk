@@ -22,7 +22,7 @@ namespace Gamism.SDK.Extensions.AspNetCore.Exceptions
         {
             var (statusCode, message) = exception switch
             {
-                SdkException ex => (ex.StatusCode, ex.Message),
+                ExpectedException ex => (ex.StatusCode, ex.Message),
                 _ => (HttpStatusCode.InternalServerError, "서버 내부 오류가 발생했습니다.")
             };
 
