@@ -7,6 +7,10 @@ on:
     tags:
       - 'v*.*.*'
 
+concurrency:
+  group: versioning
+  cancel-in-progress: false
+
 jobs:
   versioning:
     if: github.ref == 'refs/heads/main'
@@ -20,30 +24,34 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Get latest tag
-        id: get_tag
+      - name: Bump version
+        id: bump
         run: |
           git fetch --tags
           TAG=$(git tag -l 'v*.*.*' --sort=-v:refname | head -n 1)
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
 
-      - name: Bump version (patch)
-        id: bump
-        run: |
-          if [ -z "${{ steps.get_tag.outputs.tag }}" ]; then
-            VERSION="0.1.0"
-          else
-            VERSION=${{ steps.get_tag.outputs.tag }}
-            VERSION=${VERSION#v}
-
-            IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
-            PATCH=$((PATCH + 1))
-            VERSION="$MAJOR.$MINOR.$PATCH"
+          if [ -z "$TAG" ]; then
+            echo "version=0.1.0" >> $GITHUB_OUTPUT
+            exit 0
           fi
 
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "New version: $VERSION"
+          COMMITS=$(git log "$TAG"..HEAD --pretty=format:"%s")
+
+          IFS='.' read -r MAJOR MINOR PATCH <<< "${TAG#v}"
+
+          if echo "$COMMITS" | grep -qE '^feat!:|BREAKING CHANGE:'; then
+            MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0
+          elif echo "$COMMITS" | grep -qE '^feat:'; then
+            MINOR=$((MINOR + 1)); PATCH=0
+          else
+            PATCH=$((PATCH + 1))
+          fi
+
+          echo "version=$MAJOR.$MINOR.$PATCH" >> $GITHUB_OUTPUT
+          echo "New version: $MAJOR.$MINOR.$PATCH"
 
       - name: Create tag
         run: |
