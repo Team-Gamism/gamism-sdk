@@ -1,7 +1,7 @@
 using System;
 using System.Net;
 
-namespace Gamism.SDK.Core.Exceptions
+namespace Gamism.SDK.Extensions.AspNetCore.Exceptions
 {
     /// <summary>
     /// HTTP 상태코드를 포함하는 SDK 예외 베이스 클래스.

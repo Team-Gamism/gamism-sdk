@@ -2,7 +2,6 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Gamism.SDK.Core.Exceptions;
 using Gamism.SDK.Core.Network;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;

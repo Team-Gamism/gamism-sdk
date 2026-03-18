@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace Gamism.SDK.Core.Exceptions
+namespace Gamism.SDK.Extensions.AspNetCore.Exceptions
 {
     public class ConflictException : SdkException
     {
