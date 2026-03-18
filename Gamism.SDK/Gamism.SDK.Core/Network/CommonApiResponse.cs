@@ -3,9 +3,17 @@ using System.Net;
 namespace Gamism.SDK.Core.Network
 {
     /// <summary>
+    /// ApiResponseWrapperFilter에서 이미 래핑된 응답을 식별하기 위한 마커 인터페이스.
+    /// </summary>
+    public interface ICommonApiResponse
+    {
+        int Code { get; }
+    }
+
+    /// <summary>
     /// 서버와 클라이언트가 공유하는 공통 API 응답 포맷.
     /// </summary>
-    public class CommonApiResponse<T>
+    public class CommonApiResponse<T> : ICommonApiResponse
     {
         public string Status { get; }
         public int Code { get; }
