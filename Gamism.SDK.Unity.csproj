@@ -1,7 +1,20 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
+        <!-- IDE 전용 프로젝트. 실제 빌드는 Unity가 담당한다. -->
     </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Gamism.SDK.Core\Gamism.SDK.Core.csproj" />
+    </ItemGroup>
+
+    <!-- Unity Editor가 설치된 경우에만 UnityEngine 참조 (IDE 자동완성용) -->
+    <ItemGroup Condition="Exists('$(UnityEngineDllPath)')">
+        <Reference Include="UnityEngine">
+            <HintPath>$(UnityEngineDllPath)</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
 
 </Project>
