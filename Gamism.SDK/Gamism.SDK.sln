@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamism.SDK.Core", "Gamism.SDK.Core\Gamism.SDK.Core.csproj", "{01DE79EB-E636-4B5A-A127-4FDBD869FF85}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamism.SDK.Unity", "Gamism.SDK.Unity\Gamism.SDK.Unity.csproj", "{D18D05A1-CB63-45CB-8907-D9CBB1437FD4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamism.SDK.Extensions.AspNetCore", "Gamism.SDK.Extensions.AspNetCore\Gamism.SDK.Extensions.AspNetCore.csproj", "{DD336E86-E4D7-4E18-835E-50BBE68CCCB7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{01DE79EB-E636-4B5A-A127-4FDBD869FF85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01DE79EB-E636-4B5A-A127-4FDBD869FF85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01DE79EB-E636-4B5A-A127-4FDBD869FF85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01DE79EB-E636-4B5A-A127-4FDBD869FF85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D18D05A1-CB63-45CB-8907-D9CBB1437FD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D18D05A1-CB63-45CB-8907-D9CBB1437FD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D18D05A1-CB63-45CB-8907-D9CBB1437FD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D18D05A1-CB63-45CB-8907-D9CBB1437FD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD336E86-E4D7-4E18-835E-50BBE68CCCB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD336E86-E4D7-4E18-835E-50BBE68CCCB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD336E86-E4D7-4E18-835E-50BBE68CCCB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD336E86-E4D7-4E18-835E-50BBE68CCCB7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
