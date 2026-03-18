@@ -1,7 +1,18 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <PackageId>Gamism.SDK.Core</PackageId>
+        <Description>Shared types for Gamism SDK — CommonApiResponse, ExpectedException, and core abstractions for game server and Unity client.</Description>
+        <Authors>Team-Gamism</Authors>
+        <PackageProjectUrl>https://github.com/Team-Gamism/gamism-sdk</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Team-Gamism/gamism-sdk</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageTags>gamism;sdk;game-server;unity</PackageTags>
     </PropertyGroup>
 
 </Project>
