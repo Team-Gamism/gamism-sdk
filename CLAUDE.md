@@ -64,7 +64,7 @@ app.UseGamismSdk();
 
 **Response wrapping** (`ApiResponseWrapperFilter`): An `IAsyncResultFilter` that wraps all controller responses in `CommonApiResponse<T>` (`{status, code, message, data}`). `null` returns become 204 No Content. Return types implementing `ICommonApiResponse` pass through unchanged with the correct HTTP status code. URL exclusion supports `**` wildcard patterns.
 
-**Exception handling** (`GlobalExceptionHandler`): Handles `SdkException` subtypes and maps them to the corresponding HTTP status code. All other exceptions return 500 with a generic message and are logged via `ILogger`.
+**Exception handling** (`GlobalExceptionHandler`): Handles `ExpectedException` subtypes and maps them to the corresponding HTTP status code. All other exceptions return 500 with a generic message and are logged via `ILogger`.
 
 **Swagger** (`CommonApiResponseOperationFilter`): An `IOperationFilter` that rewrites 200 response schemas to show the `CommonApiResponse` wrapper shape. If the controller return type already implements `ICommonApiResponse`, the `data` field is omitted from the schema.
 
@@ -82,7 +82,7 @@ app.UseGamismSdk();
 |------|-------------|
 | `CommonApiResponse<T>` | Shared response format `{status, code, message, data}` |
 | `ICommonApiResponse` | Marker interface used by `ApiResponseWrapperFilter` and Swagger filter |
-| `SdkException` | Base exception carrying `HttpStatusCode` |
+| `ExpectedException` | Base exception carrying `HttpStatusCode`. Stack trace is not logged by `GlobalExceptionHandler` |
 | `IJsonSerializer` | JSON serialization abstraction (Unity: `NewtonsoftJsonSerializer`) |
 | `SingletonBase<T>` | Thread-safe singleton for pure C# environments |
 
