@@ -1,5 +1,7 @@
 # JetBrains Rider / IDE
 .idea/
+*.DotSettings
+*.DotSettings.user
 
 # .NET build output
 bin/

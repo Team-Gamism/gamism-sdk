@@ -1,7 +1,30 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
     </PropertyGroup>
+
+    <PropertyGroup>
+        <PackageId>Gamism.SDK.Extensions.AspNetCore</PackageId>
+        <Description>ASP.NET Core feature modules for Gamism SDK — global exception handling, response wrapping, Swagger integration, and request logging.</Description>
+        <Authors>Team-Gamism</Authors>
+        <PackageProjectUrl>https://github.com/Team-Gamism/gamism-sdk</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Team-Gamism/gamism-sdk</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageTags>gamism;sdk;aspnetcore;game-server</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Gamism.SDK.Core\Gamism.SDK.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
+    </ItemGroup>
 
 </Project>
