@@ -54,30 +54,48 @@ app.UseGamismSdk();
 }
 ----
 
+=== EmptyResponse
+
+데이터 없는 응답에 사용하는 빈 응답 타입입니다.
+
+`CommonApiResponse.Success(message)`, `CommonApiResponse.Created(message)` 등 data 없는 팩토리 메서드는 `CommonApiResponse<EmptyResponse>`의 서브클래스인 `CommonApiResponse`를 반환합니다. 컨트롤러 반환 타입에 `CommonApiResponse`를 그대로 사용할 수 있습니다.
+
+[source,csharp]
+----
+// CommonApiResponse는 CommonApiResponse<EmptyResponse>를 상속
+public CommonApiResponse CreateItem() =>
+    CommonApiResponse.Created("생성 완료");
+----
+
 === 팩토리 메서드
 
-[cols="2,1,2", options="header"]
+[cols="2,1,2,2", options="header"]
 |===
-| 메서드 | HTTP Status | 설명
+| 메서드 | HTTP Status | 반환 타입 | 설명
 
 | `CommonApiResponse.Success(message)`
 | 200 OK
+| `CommonApiResponse`
 | data 없음
 
 | `CommonApiResponse.Success(message, data)`
 | 200 OK
+| `CommonApiResponse<T>`
 | data 포함
 
 | `CommonApiResponse.Created(message)`
 | 201 Created
+| `CommonApiResponse`
 | data 없음
 
 | `CommonApiResponse.Created(message, data)`
 | 201 Created
+| `CommonApiResponse<T>`
 | data 포함
 
 | `CommonApiResponse.Error(message, status)`
 | 지정한 status
+| `CommonApiResponse`
 | data 없음
 |===
 
@@ -163,9 +181,17 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("/users")]
-    public CommonApiResponse<User> CreateUser(CreateUserRequest request)
+    public CommonApiResponse CreateUser(CreateUserRequest request)
     {
-        // ICommonApiResponse 구현체는 이중 래핑 없이 그대로 응답
+        // data 없음 → CommonApiResponse (CommonApiResponse<EmptyResponse> 서브클래스)
+        _userService.Create(request);
+        return CommonApiResponse.Created("생성 완료");
+    }
+
+    [HttpPost("/users/with-data")]
+    public CommonApiResponse<User> CreateUserWithData(CreateUserRequest request)
+    {
+        // data 포함 → CommonApiResponse<T>
         return CommonApiResponse.Created("생성 완료", _userService.Create(request));
     }
 
