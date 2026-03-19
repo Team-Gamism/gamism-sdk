@@ -45,21 +45,27 @@ namespace Gamism.SDK.Core.Network
             : base(status, code, message) { }
 
         public static CommonApiResponse Success(string message) =>
-            new CommonApiResponse(HttpStatusCode.OK.ToString().ToUpper(), (int)HttpStatusCode.OK, message);
+            Build(HttpStatusCode.OK, message);
 
         public static CommonApiResponse<T> Success<T>(string message, T data) =>
-            new CommonApiResponse<T>(HttpStatusCode.OK.ToString().ToUpper(), (int)HttpStatusCode.OK, message, data);
+            Build(HttpStatusCode.OK, message, data);
 
         public static CommonApiResponse Created(string message) =>
-            new CommonApiResponse(HttpStatusCode.Created.ToString().ToUpper(), (int)HttpStatusCode.Created, message);
+            Build(HttpStatusCode.Created, message);
 
         public static CommonApiResponse<T> Created<T>(string message, T data) =>
-            new CommonApiResponse<T>(HttpStatusCode.Created.ToString().ToUpper(), (int)HttpStatusCode.Created, message, data);
+            Build(HttpStatusCode.Created, message, data);
 
         public static CommonApiResponse Error(string message, HttpStatusCode status) =>
-            new CommonApiResponse(status.ToString().ToUpper(), (int)status, message);
+            Build(status, message);
 
         internal static CommonApiResponse<T> Error<T>(string message, HttpStatusCode status) =>
-            new CommonApiResponse<T>(status.ToString().ToUpper(), (int)status, message);
+            Build<T>(status, message);
+
+        private static CommonApiResponse Build(HttpStatusCode status, string message) =>
+            new CommonApiResponse(status.ToString().ToUpper(), (int)status, message);
+
+        private static CommonApiResponse<T> Build<T>(HttpStatusCode status, string message, T data = default) =>
+            new CommonApiResponse<T>(status.ToString().ToUpper(), (int)status, message, data);
     }
 }
