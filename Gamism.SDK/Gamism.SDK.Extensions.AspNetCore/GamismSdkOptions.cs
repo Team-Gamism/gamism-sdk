@@ -14,25 +14,25 @@ namespace Gamism.SDK.Extensions.AspNetCore
 
         public GamismSdkOptions ConfigureException(Action<ExceptionOptions> configure)
         {
-            configure(Exception);
+            configure?.Invoke(Exception);
             return this;
         }
 
         public GamismSdkOptions ConfigureResponse(Action<ResponseWrapperOptions> configure)
         {
-            configure(Response);
+            configure?.Invoke(Response);
             return this;
         }
 
         public GamismSdkOptions ConfigureSwagger(Action<SwaggerOptions> configure)
         {
-            configure(Swagger);
+            configure?.Invoke(Swagger);
             return this;
         }
 
         public GamismSdkOptions ConfigureLogging(Action<LoggingOptions> configure)
         {
-            configure(Logging);
+            configure?.Invoke(Logging);
             return this;
         }
     }
