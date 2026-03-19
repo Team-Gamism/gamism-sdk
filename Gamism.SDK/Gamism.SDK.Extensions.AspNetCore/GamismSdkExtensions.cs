@@ -76,7 +76,7 @@ namespace Gamism.SDK.Extensions.AspNetCore
             var options = app.ApplicationServices.GetRequiredService<GamismSdkOptions>();
 
             if (options.Exception.Enabled)
-                app.UseExceptionHandler();
+                app.UseExceptionHandler(_ => { });
 
             if (options.Logging.Enabled)
                 app.UseMiddleware<LoggingFilter>();
