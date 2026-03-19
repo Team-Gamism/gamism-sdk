@@ -1,0 +1,39 @@
+= Gamism SDK
+:toc:
+:toc-title: 목차
+:sectanchors:
+:sectlinks:
+:sectnums:
+
+게임 서버(ASP.NET Core)와 Unity 클라이언트를 위한 모듈형 SDK입니다.
+
+== 패키지 구성
+
+[cols="2,1,1,2", options="header"]
+|===
+| 패키지 | 배포 | 프레임워크 | 설명
+
+| `Gamism.SDK.Core`
+| NuGet
+| netstandard2.0
+| 서버·클라이언트 공유 타입
+
+| `Gamism.SDK.Extensions.AspNetCore`
+| NuGet
+| net8.0
+| ASP.NET Core 기능 모듈
+
+| `Gamism.SDK.Unity`
+| UPM
+| netstandard2.0
+| Unity 통합 레이어
+|===
+
+== 문서
+
+* link:docs/aspnetcore.adoc[ASP.NET Core 서버 가이드] — `Gamism.SDK.Core` + `Gamism.SDK.Extensions.AspNetCore`
+* link:docs/unity.adoc[Unity 클라이언트 가이드] — `Gamism.SDK.Core` + `Gamism.SDK.Unity`
+
+== 라이선스
+
+이 프로젝트는 MIT 라이선스에 따라 배포됩니다. 자세한 내용은 LICENSE 파일을 참조하세요.

@@ -1,0 +1,180 @@
+= Unity 클라이언트 가이드
+:toc:
+:toc-title: 목차
+:sectanchors:
+:sectlinks:
+:sectnums:
+
+`Gamism.SDK.Core`와 `Gamism.SDK.Unity` 패키지 사용 가이드입니다.
+
+== 설치
+
+Package Manager에서 Git URL로 추가합니다:
+
+[source]
+----
+https://github.com/Team-Gamism/gamism-sdk.git?path=Gamism.SDK/Gamism.SDK.Unity
+----
+
+== CommonApiResponse<T>
+
+서버와 클라이언트가 공유하는 공통 API 응답 포맷입니다.
+
+=== 응답 구조
+
+[source,json]
+----
+{
+  "status": "OK",
+  "code": 200,
+  "message": "성공",
+  "data": <페이로드>
+}
+----
+
+네트워크 오류 포함 모든 응답은 `CommonApiResponse<T>` 형태로 반환됩니다. 예외를 던지지 않습니다.
+
+== ApiManager
+
+`UnityWebRequest` 기반 HTTP 클라이언트입니다. `MonoSingleton<T>`로 구현되어 있어 씬 전환 후에도 유지됩니다.
+
+=== 초기 설정
+
+[source,csharp]
+----
+void Start()
+{
+    ApiManager.Instance.BaseUrl = "https://api.example.com";
+    ApiManager.Instance.Timeout = 30f;
+
+    // 공통 헤더 설정 (Authorization 등)
+    ApiManager.Instance.SetDefaultHeader("Authorization", "Bearer " + token);
+}
+----
+
+=== HTTP 메서드
+
+[cols="2,3", options="header"]
+|===
+| 메서드 | 시그니처
+
+| GET
+| `Get<T>(string path, Action<CommonApiResponse<T>> callback)`
+
+| POST
+| `Post<T>(string path, object body, Action<CommonApiResponse<T>> callback)`
+
+| PUT
+| `Put<T>(string path, object body, Action<CommonApiResponse<T>> callback)`
+
+| DELETE
+| `Delete<T>(string path, Action<CommonApiResponse<T>> callback)`
+|===
+
+=== 사용 예시
+
+[source,csharp]
+----
+// GET
+ApiManager.Instance.Get<UserDto>("/api/users/1", response =>
+{
+    if (response.Code == 200)
+        Debug.Log(response.Data.Name);
+    else
+        Debug.LogError(response.Message);
+});
+
+// POST
+var body = new CreateUserRequest { Name = "홍길동" };
+ApiManager.Instance.Post<UserDto>("/api/users", body, response =>
+{
+    Debug.Log($"생성됨: {response.Data.Name}");
+});
+----
+
+=== JSON 직렬화 커스터마이징
+
+기본 직렬화기는 `NewtonsoftJsonSerializer`입니다. 설정이 필요한 경우 교체할 수 있습니다.
+
+[source,csharp]
+----
+var settings = new JsonSerializerSettings
+{
+    NullValueHandling = NullValueHandling.Ignore
+};
+ApiManager.Instance.Serializer = new NewtonsoftJsonSerializer(settings);
+----
+
+== MonoSingleton<T>
+
+씬 전환 시 파괴되지 않는 Unity `MonoBehaviour` 싱글턴 베이스 클래스입니다.
+
+=== 특징
+
+* `DontDestroyOnLoad` 자동 적용
+* 중복 인스턴스 즉시 제거
+* 앱 종료 시 `Instance`가 `null` 반환 (NullReferenceException 방지)
+
+=== 사용 예시
+
+[source,csharp]
+----
+public class GameManager : MonoSingleton<GameManager>
+{
+    protected override void OnAwake()
+    {
+        // Awake 대신 OnAwake() 오버라이드
+        Debug.Log("GameManager 초기화");
+    }
+
+    public void StartGame() { }
+}
+
+// 사용
+GameManager.Instance.StartGame();
+
+// 종료 직전 체크
+if (GameManager.HasInstance)
+    GameManager.Instance.StartGame();
+----
+
+== WaitAction
+
+콜백 기반 지연 실행 유틸리티입니다. `WaitForSeconds` 객체를 밀리초 단위 키로 캐싱하여 GC 부담을 줄입니다.
+
+=== API
+
+[cols="2,3", options="header"]
+|===
+| 메서드 | 설명
+
+| `WaitAction.Wait(seconds, callback)`
+| 지정한 시간 후 콜백 실행
+
+| `WaitAction.WaitUntil(condition, callback, timeOut)`
+| 조건이 충족될 때 콜백 실행. `timeOut` 음수면 무한 대기
+|===
+
+=== 사용 예시
+
+[source,csharp]
+----
+// 2초 후 실행
+WaitAction.Wait(2f, () =>
+{
+    Debug.Log("2초 후 실행");
+});
+
+// 조건 충족 시 실행 (최대 5초 대기)
+WaitAction.WaitUntil(
+    condition: () => _isLoaded,
+    callback: () => Debug.Log("로딩 완료"),
+    timeOut: 5f
+);
+
+// 무한 대기
+WaitAction.WaitUntil(
+    condition: () => _isReady,
+    callback: () => StartGame()
+);
+----
