@@ -81,9 +81,9 @@ app.UseGamismSdk();
 | data 없음
 |===
 
-== 로깅 필터 (ConfigureLogging)
+== 로깅 필터 (options.Logging)
 
-HTTP 요청과 응답을 자동으로 로깅하는 미들웨어(`IMiddleware`)입니다.
+HTTP 요청과 응답을 자동으로 로깅합니다.
 
 === 로그 포맷
 
@@ -214,7 +214,7 @@ options.ConfigureResponse(response =>
 });
 ----
 
-== 예외 처리 (ConfigureException)
+== 예외 처리 (options.Exception)
 
 `ExpectedException`을 던지면 `GlobalExceptionHandler`가 자동으로 처리하여 `CommonApiResponse` 형식으로 응답합니다. 그 외 예외는 500으로 응답하고 스택 트레이스를 `ILogger`에 기록합니다.
 
@@ -225,7 +225,7 @@ options.ConfigureResponse(response =>
 // 메시지 직접 지정
 throw new ExpectedException(HttpStatusCode.NotFound, "유저를 찾을 수 없습니다");
 
-// status의 ToString()을 메시지로 사용 ("NotFound")
+// status 기본 메시지 사용
 throw new ExpectedException(HttpStatusCode.Forbidden);
 ----
 
@@ -272,7 +272,7 @@ throw new ForbiddenException("접근 권한이 없습니다");
 
 === 성능
 
-`ExpectedException`은 스택 트레이스를 수집하지 않아 일반 예외보다 생성 비용이 낮습니다. `GlobalExceptionHandler`도 `ExpectedException`에 대해서는 스택 트레이스를 로그에 남기지 않습니다.
+`ExpectedException`은 스택 트레이스를 수집하지 않아 일반 예외보다 생성 비용이 낮습니다. 비즈니스 로직 오류 처리에 적합합니다.
 
 === 설정 옵션
 
@@ -285,9 +285,9 @@ throw new ForbiddenException("접근 권한이 없습니다");
 | 예외 핸들러 활성화 여부
 |===
 
-== Swagger (ConfigureSwagger)
+== Swagger (options.Swagger)
 
-Swashbuckle 기반 Swagger UI를 자동으로 구성합니다. `CommonApiResponseOperationFilter`가 모든 200 응답 스키마를 `CommonApiResponse` 래핑 구조로 재작성합니다. 컨트롤러 반환 타입이 이미 `ICommonApiResponse`를 구현하는 경우 `data` 필드는 스키마에서 제외됩니다.
+Swashbuckle 기반의 Swagger UI를 자동으로 구성합니다. 응답 스키마는 `CommonApiResponse` 래핑 구조를 반영합니다.
 
 === 설정 옵션
 
@@ -309,7 +309,7 @@ Swashbuckle 기반 Swagger UI를 자동으로 구성합니다. `CommonApiRespons
 
 | `Version`
 | `"v1"`
-| API 버전 (Swagger 엔드포인트 경로에 사용)
+| API 버전
 
 | `Group`
 | `"default"`
@@ -327,7 +327,6 @@ options.ConfigureSwagger(swagger =>
     swagger.Title = "My API";
     swagger.Version = "v1";
     swagger.PathsToMatch = ["/api/**"];
-    // Swagger UI: /swagger/v1/swagger.json
 });
 ----
 
