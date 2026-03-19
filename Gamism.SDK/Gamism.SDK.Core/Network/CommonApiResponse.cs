@@ -36,29 +36,30 @@ namespace Gamism.SDK.Core.Network
     public sealed class EmptyResponse { }
 
     /// <summary>
-    /// CommonApiResponse 팩토리 메서드 모음.
+    /// 데이터 없는 응답에 사용하는 비제네릭 CommonApiResponse.
+    /// CommonApiResponse&lt;EmptyResponse&gt;의 편의 타입으로, 팩토리 메서드도 포함한다.
     /// </summary>
-    public static class CommonApiResponse
+    public class CommonApiResponse : CommonApiResponse<EmptyResponse>
     {
-        public static CommonApiResponse<EmptyResponse> Success(string message) =>
-            Build<EmptyResponse>(HttpStatusCode.OK, message);
+        internal CommonApiResponse(string status, int code, string message)
+            : base(status, code, message) { }
+
+        public static CommonApiResponse Success(string message) =>
+            new CommonApiResponse(HttpStatusCode.OK.ToString().ToUpper(), (int)HttpStatusCode.OK, message);
 
         public static CommonApiResponse<T> Success<T>(string message, T data) =>
-            Build(HttpStatusCode.OK, message, data);
+            new CommonApiResponse<T>(HttpStatusCode.OK.ToString().ToUpper(), (int)HttpStatusCode.OK, message, data);
 
-        public static CommonApiResponse<EmptyResponse> Created(string message) =>
-            Build<EmptyResponse>(HttpStatusCode.Created, message);
+        public static CommonApiResponse Created(string message) =>
+            new CommonApiResponse(HttpStatusCode.Created.ToString().ToUpper(), (int)HttpStatusCode.Created, message);
 
         public static CommonApiResponse<T> Created<T>(string message, T data) =>
-            Build(HttpStatusCode.Created, message, data);
+            new CommonApiResponse<T>(HttpStatusCode.Created.ToString().ToUpper(), (int)HttpStatusCode.Created, message, data);
 
-        public static CommonApiResponse<EmptyResponse> Error(string message, HttpStatusCode status) =>
-            Build<EmptyResponse>(status, message);
+        public static CommonApiResponse Error(string message, HttpStatusCode status) =>
+            new CommonApiResponse(status.ToString().ToUpper(), (int)status, message);
 
         internal static CommonApiResponse<T> Error<T>(string message, HttpStatusCode status) =>
-            Build<T>(status, message);
-
-        private static CommonApiResponse<T> Build<T>(HttpStatusCode status, string message, T data = default) =>
-            new CommonApiResponse<T>(status.ToString().ToUpper(), (int)status, message, data);
+            new CommonApiResponse<T>(status.ToString().ToUpper(), (int)status, message);
     }
 }
