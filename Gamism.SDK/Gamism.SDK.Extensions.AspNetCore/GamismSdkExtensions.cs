@@ -27,7 +27,10 @@ namespace Gamism.SDK.Extensions.AspNetCore
             services.AddSingleton(options);
 
             if (options.Exception.Enabled)
+            {
                 services.AddExceptionHandler<GlobalExceptionHandler>();
+                services.AddProblemDetails();
+            }
 
             if (options.Response.Enabled)
             {
