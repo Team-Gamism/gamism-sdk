@@ -20,7 +20,7 @@
 
 | `Gamism.SDK.Extensions.AspNetCore`
 | NuGet
-| net8.0
+| net8.0+
 | ASP.NET Core 기능 모듈
 
 | `Gamism.SDK.Unity`
