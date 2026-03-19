@@ -31,24 +31,29 @@ namespace Gamism.SDK.Core.Network
     }
 
     /// <summary>
+    /// 데이터 없는 응답에 사용하는 빈 응답 타입.
+    /// </summary>
+    public sealed class EmptyResponse { }
+
+    /// <summary>
     /// CommonApiResponse 팩토리 메서드 모음.
     /// </summary>
     public static class CommonApiResponse
     {
-        public static CommonApiResponse<object> Success(string message) =>
-            Build<object>(HttpStatusCode.OK, message);
+        public static CommonApiResponse<EmptyResponse> Success(string message) =>
+            Build<EmptyResponse>(HttpStatusCode.OK, message);
 
         public static CommonApiResponse<T> Success<T>(string message, T data) =>
             Build(HttpStatusCode.OK, message, data);
 
-        public static CommonApiResponse<object> Created(string message) =>
-            Build<object>(HttpStatusCode.Created, message);
+        public static CommonApiResponse<EmptyResponse> Created(string message) =>
+            Build<EmptyResponse>(HttpStatusCode.Created, message);
 
         public static CommonApiResponse<T> Created<T>(string message, T data) =>
             Build(HttpStatusCode.Created, message, data);
 
-        public static CommonApiResponse<object> Error(string message, HttpStatusCode status) =>
-            Build<object>(status, message);
+        public static CommonApiResponse<EmptyResponse> Error(string message, HttpStatusCode status) =>
+            Build<EmptyResponse>(status, message);
 
         internal static CommonApiResponse<T> Error<T>(string message, HttpStatusCode status) =>
             Build<T>(status, message);
