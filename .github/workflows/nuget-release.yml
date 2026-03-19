@@ -24,7 +24,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-          cache: true
 
       - name: Resolve version
         id: version
@@ -35,7 +34,9 @@ jobs:
         run: dotnet restore Gamism.SDK/Gamism.SDK.sln
 
       - name: Build
-        run: dotnet build Gamism.SDK/Gamism.SDK.sln -c Release --no-restore
+        run: |
+          dotnet build Gamism.SDK/Gamism.SDK.Core/Gamism.SDK.Core.csproj -c Release --no-restore
+          dotnet build Gamism.SDK/Gamism.SDK.Extensions.AspNetCore/Gamism.SDK.Extensions.AspNetCore.csproj -c Release --no-restore
 
       - name: Pack
         run: |
