@@ -1,14 +1,14 @@
 {
   "name": "Gamism.SDK.Unity",
   "rootNamespace": "Gamism.SDK.Unity",
-  "references": [
-    "Gamism.SDK.Core"
-  ],
+  "references": [],
   "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,
-  "overrideReferences": false,
-  "precompiledReferences": [],
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "Gamism.SDK.Core.dll"
+  ],
   "autoReferenced": true,
   "defineConstraints": [],
   "versionDefines": []
