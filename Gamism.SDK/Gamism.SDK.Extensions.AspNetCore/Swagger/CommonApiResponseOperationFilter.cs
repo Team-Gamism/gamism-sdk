@@ -10,31 +10,35 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 namespace Gamism.SDK.Extensions.AspNetCore.Swagger
 {
     /// <summary>
-    /// 모든 200 응답 스키마를 CommonApiResponse 형태로 래핑하는 Swagger 필터.
-    /// 반환 타입이 이미 ICommonApiResponse이면 data 필드를 숨긴다.
+    /// Wraps 200 response schemas with CommonApiResponse.
+    /// If the action already returns CommonApiResponse, only the inner schema is used for data.
     /// </summary>
     public class CommonApiResponseOperationFilter : IOperationFilter
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
             var returnType = UnwrapType(context.MethodInfo.ReturnType);
-            var isWrapped = returnType.IsGenericType
-                && returnType.GetGenericTypeDefinition() == typeof(CommonApiResponse<>)
-                && returnType.GetGenericArguments()[0] != typeof(EmptyResponse);
+            var isAlreadyWrapped = returnType.IsGenericType
+                && returnType.GetGenericTypeDefinition() == typeof(CommonApiResponse<>);
 
             if (!operation.Responses.TryGetValue("200", out var response))
                 return;
 
-            // CommonApiResponse<T>인 경우 T의 스키마만 꺼내 data 필드에 사용
-            OpenApiSchema? dataSchema = null;
-            if (isWrapped)
-            {
-                var innerType = returnType.GetGenericArguments()[0];
-                dataSchema = context.SchemaGenerator.GenerateSchema(innerType, context.SchemaRepository);
-            }
-
             foreach (var content in response.Content.Values)
-                content.Schema = BuildWrappedSchema(dataSchema, hideDataField: !isWrapped);
+            {
+                var innerType = isAlreadyWrapped
+                    ? returnType.GetGenericArguments()[0]
+                    : returnType;
+                var hideDataField = innerType == typeof(EmptyResponse)
+                    || innerType == typeof(void);
+                var dataSchema = hideDataField
+                    ? null
+                    : isAlreadyWrapped
+                        ? context.SchemaGenerator.GenerateSchema(innerType, context.SchemaRepository)
+                        : content.Schema;
+
+                content.Schema = BuildWrappedSchema(dataSchema, hideDataField);
+            }
         }
 
         private static OpenApiSchema BuildWrappedSchema(OpenApiSchema? dataSchema, bool hideDataField)
@@ -54,11 +58,11 @@ namespace Gamism.SDK.Extensions.AspNetCore.Swagger
 
         private static Type UnwrapType(Type type)
         {
-            // Task<T> → T
+            // Task<T> -> T
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>))
                 type = type.GetGenericArguments()[0];
 
-            // ActionResult<T> → T
+            // ActionResult<T> -> T
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ActionResult<>))
                 type = type.GetGenericArguments()[0];
 
