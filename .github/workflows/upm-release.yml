@@ -1,0 +1,72 @@
+name: UPM Release
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore Gamism.SDK/Gamism.SDK.Core/Gamism.SDK.Core.csproj
+
+      - name: Build Core (Release)
+        run: dotnet build Gamism.SDK/Gamism.SDK.Core/Gamism.SDK.Core.csproj -c Release --no-restore
+
+      - name: Update DLL in Unity package
+        run: |
+          cp Gamism.SDK/Gamism.SDK.Core/bin/Release/netstandard2.0/Gamism.SDK.Core.dll \
+             Gamism.SDK/Gamism.SDK.Unity/Runtime/Plugins/Gamism.SDK.Core.dll
+
+      - name: Update package.json version
+        run: |
+          jq '.version = "${{ inputs.version }}"' \
+            Gamism.SDK/Gamism.SDK.Unity/package.json > /tmp/package.json
+          mv /tmp/package.json Gamism.SDK/Gamism.SDK.Unity/package.json
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit release artifacts
+        run: |
+          git add Gamism.SDK/Gamism.SDK.Unity/Runtime/Plugins/Gamism.SDK.Core.dll
+          git add Gamism.SDK/Gamism.SDK.Unity/package.json
+          git diff --cached --quiet || git commit -m "ci: release v${{ inputs.version }} [skip ci]"
+
+      - name: Split upm subtree
+        run: |
+          git subtree split \
+            --prefix=Gamism.SDK/Gamism.SDK.Unity \
+            --branch upm-publish
+
+      - name: Push to upm branch
+        run: git push origin upm-publish:upm --force
+
+      - name: Tag upm version
+        run: |
+          TAG="upm/v${{ inputs.version }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists. Skipping."
+            exit 0
+          fi
+          git tag "$TAG" upm-publish
+          git push origin "$TAG"
