@@ -26,15 +26,18 @@ namespace Gamism.SDK.Extensions.AspNetCore.Response
 
             context.Result = context.Result switch
             {
-                // 이미 CommonApiResponse인 경우 → HTTP 상태코드만 맞추고 통과
+                // Already wrapped: keep the response body and align the HTTP status code.
                 ObjectResult { Value: ICommonApiResponse response } =>
                     new ObjectResult(response) { StatusCode = response.Code },
 
-                // null 또는 빈 응답 → 204 No Content
+                // 4xx/5xx responses should pass through without wrapping.
+                ObjectResult { StatusCode: >= 400 } errorResult => errorResult,
+
+                // Null or empty results become 204 No Content.
                 ObjectResult { Value: null } or EmptyResult =>
                     new StatusCodeResult(StatusCodes.Status204NoContent),
 
-                // 일반 객체 → CommonApiResponse.Success로 래핑
+                // Normal objects are wrapped as CommonApiResponse.Success.
                 ObjectResult objectResult =>
                     new OkObjectResult(CommonApiResponse.Success("OK", objectResult.Value)),
 
