@@ -18,7 +18,9 @@ namespace Gamism.SDK.Extensions.AspNetCore.Swagger
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
             var returnType = UnwrapType(context.MethodInfo.ReturnType);
-            var hideDataField = typeof(ICommonApiResponse).IsAssignableFrom(returnType);
+            var hideDataField = !returnType.IsGenericType
+                || returnType.GetGenericTypeDefinition() != typeof(CommonApiResponse<>)
+                || returnType.GetGenericArguments()[0] == typeof(EmptyResponse);
 
             if (!operation.Responses.TryGetValue("200", out var response))
                 return;
