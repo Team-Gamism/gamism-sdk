@@ -18,21 +18,26 @@ namespace Gamism.SDK.Extensions.AspNetCore.Swagger
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
             var returnType = UnwrapType(context.MethodInfo.ReturnType);
-            var hideDataField = !returnType.IsGenericType
-                || returnType.GetGenericTypeDefinition() != typeof(CommonApiResponse<>)
-                || returnType.GetGenericArguments()[0] == typeof(EmptyResponse);
+            var isWrapped = returnType.IsGenericType
+                && returnType.GetGenericTypeDefinition() == typeof(CommonApiResponse<>)
+                && returnType.GetGenericArguments()[0] != typeof(EmptyResponse);
 
             if (!operation.Responses.TryGetValue("200", out var response))
                 return;
 
-            foreach (var content in response.Content.Values)
+            // CommonApiResponse<T>인 경우 T의 스키마만 꺼내 data 필드에 사용
+            OpenApiSchema? dataSchema = null;
+            if (isWrapped)
             {
-                var originalSchema = content.Schema;
-                content.Schema = BuildWrappedSchema(originalSchema, hideDataField);
+                var innerType = returnType.GetGenericArguments()[0];
+                dataSchema = context.SchemaGenerator.GenerateSchema(innerType, context.SchemaRepository);
             }
+
+            foreach (var content in response.Content.Values)
+                content.Schema = BuildWrappedSchema(dataSchema, hideDataField: !isWrapped);
         }
 
-        private static OpenApiSchema BuildWrappedSchema(OpenApiSchema originalSchema, bool hideDataField)
+        private static OpenApiSchema BuildWrappedSchema(OpenApiSchema? dataSchema, bool hideDataField)
         {
             var properties = new Dictionary<string, OpenApiSchema>
             {
@@ -41,8 +46,8 @@ namespace Gamism.SDK.Extensions.AspNetCore.Swagger
                 ["message"] = new OpenApiSchema { Type = "string", Example = new OpenApiString("OK") },
             };
 
-            if (!hideDataField && originalSchema != null)
-                properties["data"] = originalSchema;
+            if (!hideDataField && dataSchema != null)
+                properties["data"] = dataSchema;
 
             return new OpenApiSchema { Type = "object", Properties = properties };
         }

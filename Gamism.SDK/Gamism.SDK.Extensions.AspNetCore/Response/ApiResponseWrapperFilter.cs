@@ -34,6 +34,9 @@ namespace Gamism.SDK.Extensions.AspNetCore.Response
                 ObjectResult { Value: null } or EmptyResult =>
                     new StatusCodeResult(StatusCodes.Status204NoContent),
 
+                // 4xx/5xx 오류 응답 → 래핑하지 않고 그대로 통과
+                ObjectResult { StatusCode: >= 400 } errorResult => errorResult,
+
                 // 일반 객체 → CommonApiResponse.Success로 래핑
                 ObjectResult objectResult =>
                     new OkObjectResult(CommonApiResponse.Success("OK", objectResult.Value)),
