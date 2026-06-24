@@ -18,8 +18,18 @@ namespace Gamism.SDK.Extensions.AspNetCore.Swagger
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
             var returnType = UnwrapType(context.MethodInfo.ReturnType);
-            var isAlreadyWrapped = returnType.IsGenericType
-                && returnType.GetGenericTypeDefinition() == typeof(CommonApiResponse<>);
+
+            // CommonApiResponse<T> 또는 이를 상속한 타입을 상속 계층에서 탐색한다.
+            Type wrappedType = null;
+            for (var current = returnType; current != null && current != typeof(object); current = current.BaseType)
+            {
+                if (current.IsGenericType && current.GetGenericTypeDefinition() == typeof(CommonApiResponse<>))
+                {
+                    wrappedType = current;
+                    break;
+                }
+            }
+            var isAlreadyWrapped = wrappedType != null;
 
             if (!operation.Responses.TryGetValue("200", out var response))
                 return;
@@ -27,9 +37,10 @@ namespace Gamism.SDK.Extensions.AspNetCore.Swagger
             foreach (var content in response.Content.Values)
             {
                 var innerType = isAlreadyWrapped
-                    ? returnType.GetGenericArguments()[0]
+                    ? wrappedType.GetGenericArguments()[0]
                     : returnType;
-                var hideDataField = innerType == typeof(EmptyResponse)
+                var hideDataField = (!isAlreadyWrapped && typeof(ICommonApiResponse).IsAssignableFrom(returnType))
+                    || innerType == typeof(EmptyResponse)
                     || innerType == typeof(void);
                 var dataSchema = hideDataField
                     ? null

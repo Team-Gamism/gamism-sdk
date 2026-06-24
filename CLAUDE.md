@@ -66,7 +66,7 @@ app.UseGamismSdk();
 
 **Exception handling** (`GlobalExceptionHandler`): Handles `ExpectedException` subtypes and maps them to the corresponding HTTP status code. All other exceptions return 500 with a generic message and are logged via `ILogger`.
 
-**Swagger** (`CommonApiResponseOperationFilter`): An `IOperationFilter` that rewrites 200 response schemas to show the `CommonApiResponse` wrapper shape. If the controller return type already implements `ICommonApiResponse`, the `data` field is omitted from the schema.
+**Swagger** (`CommonApiResponseOperationFilter`): An `IOperationFilter` that rewrites 200 response schemas to the `CommonApiResponse` wrapper shape. `CommonApiResponse<T>` shows `data` typed as `T`; the non-generic `CommonApiResponse` (and `EmptyResponse`/`void`) omits the `data` field.
 
 **Logging** (`LoggingFilter`): An `IMiddleware` that logs `[Request] METHOD /path?query` and `[Response] statusCode (Xms)`. URL exclusion supports `**` wildcard patterns.
 
