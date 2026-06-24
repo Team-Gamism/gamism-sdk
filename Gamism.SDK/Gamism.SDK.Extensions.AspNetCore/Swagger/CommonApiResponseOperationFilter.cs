@@ -29,7 +29,8 @@ namespace Gamism.SDK.Extensions.AspNetCore.Swagger
                 var innerType = isAlreadyWrapped
                     ? returnType.GetGenericArguments()[0]
                     : returnType;
-                var hideDataField = innerType == typeof(EmptyResponse)
+                var hideDataField = (!isAlreadyWrapped && typeof(ICommonApiResponse).IsAssignableFrom(returnType))
+                    || innerType == typeof(EmptyResponse)
                     || innerType == typeof(void);
                 var dataSchema = hideDataField
                     ? null
