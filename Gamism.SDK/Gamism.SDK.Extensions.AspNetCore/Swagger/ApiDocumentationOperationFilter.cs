@@ -59,44 +59,68 @@ namespace Gamism.SDK.Extensions.AspNetCore.Swagger
             var code = ((int)status).ToString();
             var displayMessage = string.IsNullOrEmpty(message) ? status.ToString() : message;
 
-            // 동일 상태 코드가 이미 있으면 설명만 누적한다. (OpenAPI는 상태 코드당 응답 1개)
+            // 동일 상태 코드가 이미 있으면 설명을 병합하고, CommonApiResponse 스키마가
+            // 없으면(예: [ApiController] 기본 응답) 추가한다. (OpenAPI는 상태 코드당 응답 1개)
             if (operation.Responses.TryGetValue(code, out var existing))
             {
-                if (!string.IsNullOrEmpty(message)
-                    && existing.Description != null
-                    && !existing.Description.Contains(displayMessage))
-                {
-                    existing.Description += " / " + displayMessage;
-                }
+                MergeDescription(existing, message, displayMessage);
+
+                if (existing.Content == null)
+                    existing.Content = new Dictionary<string, OpenApiMediaType>();
+
+                if (!existing.Content.ContainsKey("application/json"))
+                    existing.Content["application/json"] = CreateErrorMediaType(status, displayMessage);
+
                 return;
             }
-
-            var statusText = status.ToString().ToUpper();
 
             operation.Responses[code] = new OpenApiResponse
             {
                 Description = displayMessage,
                 Content = new Dictionary<string, OpenApiMediaType>
                 {
-                    ["application/json"] = new OpenApiMediaType
+                    ["application/json"] = CreateErrorMediaType(status, displayMessage),
+                },
+            };
+        }
+
+        private static void MergeDescription(OpenApiResponse response, string message, string displayMessage)
+        {
+            if (string.IsNullOrEmpty(message))
+                return;
+
+            if (string.IsNullOrEmpty(response.Description))
+            {
+                response.Description = displayMessage;
+                return;
+            }
+
+            var parts = response.Description.Split(new[] { " / " }, StringSplitOptions.RemoveEmptyEntries);
+            if (!parts.Contains(displayMessage))
+                response.Description += " / " + displayMessage;
+        }
+
+        private static OpenApiMediaType CreateErrorMediaType(HttpStatusCode status, string message)
+        {
+            var statusText = status.ToString().ToUpper();
+
+            return new OpenApiMediaType
+            {
+                Schema = new OpenApiSchema
+                {
+                    Type = "object",
+                    Properties = new Dictionary<string, OpenApiSchema>
                     {
-                        Schema = new OpenApiSchema
-                        {
-                            Type = "object",
-                            Properties = new Dictionary<string, OpenApiSchema>
-                            {
-                                ["status"] = new OpenApiSchema { Type = "string" },
-                                ["code"] = new OpenApiSchema { Type = "integer", Format = "int32" },
-                                ["message"] = new OpenApiSchema { Type = "string" },
-                            },
-                        },
-                        Example = new OpenApiObject
-                        {
-                            ["status"] = new OpenApiString(statusText),
-                            ["code"] = new OpenApiInteger((int)status),
-                            ["message"] = new OpenApiString(displayMessage),
-                        },
+                        ["status"] = new OpenApiSchema { Type = "string" },
+                        ["code"] = new OpenApiSchema { Type = "integer", Format = "int32" },
+                        ["message"] = new OpenApiSchema { Type = "string" },
                     },
+                },
+                Example = new OpenApiObject
+                {
+                    ["status"] = new OpenApiString(statusText),
+                    ["code"] = new OpenApiInteger((int)status),
+                    ["message"] = new OpenApiString(message),
                 },
             };
         }
