@@ -52,6 +52,7 @@ namespace Gamism.SDK.Extensions.AspNetCore
                     });
 
                     c.OperationFilter<CommonApiResponseOperationFilter>();
+                    c.OperationFilter<ApiDocumentationOperationFilter>();
 
                     c.DocInclusionPredicate((_, apiDesc) =>
                         UrlPatternMatcher.IsMatch("/" + apiDesc.RelativePath, options.Swagger.PathsToMatch));
