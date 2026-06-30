@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Threading.Tasks;
 using Gamism.SDK.Extensions.AspNetCore.Options;
 using Gamism.SDK.Extensions.AspNetCore.Utils;
@@ -43,7 +44,7 @@ namespace Gamism.SDK.Extensions.AspNetCore.Logging
         }
 
         private string Timestamp()
-            => LogTimeZoneResolver.Now(_options.TimeZone).ToString("yyyy/MM/dd HH:mm");
+            => LogTimeZoneResolver.Now(_options.TimeZone).ToString("yyyy/MM/dd HH:mm", CultureInfo.InvariantCulture);
 
         private bool IsExcluded(string path)
             => UrlPatternMatcher.IsMatch(path, _options.NotLoggingUrls);
