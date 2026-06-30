@@ -26,7 +26,8 @@ namespace Gamism.SDK.Extensions.AspNetCore.Logging
                 return;
             }
 
-            _logger.LogInformation("[Request] {Method} {Path}{QueryString}",
+            _logger.LogInformation("[{Timestamp}] [Request] {Method} {Path}{QueryString}",
+                Timestamp(),
                 context.Request.Method,
                 context.Request.Path,
                 context.Request.QueryString);
@@ -35,10 +36,14 @@ namespace Gamism.SDK.Extensions.AspNetCore.Logging
             await next(context);
             sw.Stop();
 
-            _logger.LogInformation("[Response] {StatusCode} ({Elapsed}ms)",
+            _logger.LogInformation("[{Timestamp}] [Response] {StatusCode} ({Elapsed}ms)",
+                Timestamp(),
                 context.Response.StatusCode,
                 sw.ElapsedMilliseconds);
         }
+
+        private string Timestamp()
+            => LogTimeZoneResolver.Now(_options.TimeZone).ToString("yyyy/MM/dd HH:mm");
 
         private bool IsExcluded(string path)
             => UrlPatternMatcher.IsMatch(path, _options.NotLoggingUrls);
