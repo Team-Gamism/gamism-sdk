@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Gamism.SDK.Extensions.AspNetCore.Logging
@@ -22,13 +23,15 @@ namespace Gamism.SDK.Extensions.AspNetCore.Logging
             [LogTimeZone.Germany] = "Europe/Berlin"
         };
 
-        /// <summary>지정한 시간대의 현재 시각을 반환한다.</summary>
+        private static readonly ConcurrentDictionary<LogTimeZone, TimeZoneInfo> TimeZoneCache = new();
+
+        /// <summary>지정한 시간대의 현재 시각을 반환한다. 미정의 값은 UTC로 처리한다.</summary>
         public static DateTime Now(LogTimeZone timeZone)
         {
-            if (timeZone == LogTimeZone.Utc)
+            if (timeZone == LogTimeZone.Utc || !IanaIds.TryGetValue(timeZone, out var ianaId))
                 return DateTime.UtcNow;
 
-            var info = TimeZoneInfo.FindSystemTimeZoneById(IanaIds[timeZone]);
+            var info = TimeZoneCache.GetOrAdd(timeZone, _ => TimeZoneInfo.FindSystemTimeZoneById(ianaId));
             return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, info);
         }
     }
